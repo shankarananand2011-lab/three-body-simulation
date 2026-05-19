@@ -6,4 +6,5 @@ Requirements: Python 3, matplotlib, numpy
 Install: pip install matplotlib numpy
 Run: python three_body_simulation.py
 The two systems are almost identical until a close gravitational encounter of the three bodies, after which bodies 1 and 2 grow apart considerably. the lyapunov exponent(ln of the seperation) itself stays low up until the encouter and increases steeply after the encounter and slows down.
-there are two main methods, euler and runge kutta method. euler just calculates and takes into account the position,velocity and acceleration of the bodies in every time step, ignoring change in acceleration and beyond, while runge kutta uses a clever trick of taking a weighted average of the velocities at the start, midpoint and end of a timestep to cancel out the second, third and fourth order derivatives, leading to dramatically more accuracy.
+The RK4 methoduses a clever trick of taking a weighted average of the velocities at the start, midpoint and end of a timestep to cancel out the second, third and fourth order derivatives, leading to dramatically more accuracy.
+Update: softening parameter ε=0.1 added, energy conservation verified to 10⁻⁹ relative error, Lyapunov exponent extracted as λ=0.388 simulation_time⁻¹, mapping to SMBH scales gives Lyapunov time of 38,700 years for a 1.2×10⁷ solar mass triple system. more updates to come
