@@ -2,29 +2,27 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.animation import FuncAnimation
-fig,ax=plt.subplots()
-body_1,=ax.plot([],[],'ro')
-body_2,=ax.plot([],[],'go')
-body_3,=ax.plot([],[],'bo')
-body_4, = ax.plot([], [], 'r^')
-body_5, = ax.plot([], [], 'g^')
-body_6, = ax.plot([], [], 'b^')
+fig, ax = plt.subplots()
 #these variables are the masses, positions and velocities of the three bodies
-a = b = c = 1.0
-x_p = [-1.0, 1.0, 0.0]
-y_p = [0.0, 0.0, 1.0]
-vx=[0.2, -0.2, 0.0]
-vy=[0.0, 0.0, 0.3]
-x_p2 = [-1.0+1e-6, 1.0, 0.0]
-y_p2 = [0.0, 0.0, 1.0]
-vx2 = [0.2, -0.2, 0.0]
-vy2 = [0.0, 0.0, 0.3]
+a = 3.0
+b = 4.0
+c = 5.0
+x_p = [1.0, -2.0, 1.0]
+y_p = [3.0, -1.0, -1.0]
+vx = [0.0, 0.0, 0.0]
+vy = [0.0, 0.0, 0.0]
+x_p2 = [1.0+1e-6, -2.0, 1.0]
+y_p2 = [3.0, -1.0, -1.0]
+vx2 = [0.0, 0.0, 0.0]
+vy2 = [0.0, 0.0, 0.0]
 dt = 0.0001
-steps = 5000
+steps = 200000
 ax.set_xlim(-10, 10)
 ax.set_ylim(-10, 10)
 #this function takes in the x and y positions of two bodies to calculate their distance
 def distance(x1,x2,y1,y2):
+    return(((x1-x2)**2)+((y1-y2)**2)+(0.1**2))**.5
+def distance2(x1,x2,y1,y2):
     return(((x1-x2)**2)+((y1-y2)**2))**.5
 #this function takes in the masses and distance between two bodies to calculate their gravitational force
 def gravitational_force(p,q,r):
@@ -79,33 +77,75 @@ traj_x3=[]
 traj_y1=[]
 traj_y2=[]
 traj_y3=[]
+traj_x4=[]
+traj_y4=[]
+traj_x5=[]
+traj_y5=[]
+traj_x6=[]
+traj_y6=[]
+def conservation(m1,m2,m3, x1,y1,x2,y2,x3,y3,vx1,vy1,vx2,vy2,vx3,vy3):
+    r12=distance(x1,x2,y1,y2)
+    r23=distance(x2,x3,y3,y2)
+    r31=distance(x1,x3,y1,y3)
+    return ((0.5*m1*(vx1**2+vy1**2))+(0.5*m2*(vx2**2+vy2**2))+(0.5*m3*(vx3**2+vy3**2))-(m1*m2/r12)-(m2*m3/r23)-(m3*m1/r31))
 #this function calls rk4 to calculate and update the positions and velocities of the bodies. it also calculates and stores the separation between the two systems
-def update(frame):
+separations=[]
+energy=[]
+plt.close()
+for frame in range(steps):
     x_p[0],y_p[0],x_p[1],y_p[1],x_p[2],y_p[2],vx[0],vy[0],vx[1],vy[1],vx[2],vy[2]=rk4(x_p[0],x_p[1],x_p[2],y_p[0],y_p[1],y_p[2],vx[0],vx[1],vx[2],vy[0],vy[1],vy[2],a,b,c)
     x_p2[0],y_p2[0],x_p2[1],y_p2[1],x_p2[2],y_p2[2],vx2[0],vy2[0],vx2[1],vy2[1],vx2[2],vy2[2]=rk4(x_p2[0],x_p2[1],x_p2[2],y_p2[0],y_p2[1],y_p2[2],vx2[0],vx2[1],vx2[2],vy2[0],vy2[1],vy2[2],a,b,c)
-    s1=distance(x_p2[0],x_p[0],y_p2[0],y_p[0])
-    s2=distance(x_p2[1],x_p[1],y_p2[1],y_p[1])
-    s3=distance(x_p2[2],x_p[2],y_p2[2],y_p[2])
+    result=conservation(a,b,c,x_p[0],y_p[0],x_p[1],y_p[1],x_p[2],y_p[2],vx[0],vy[0],vx[1],vy[1],vx[2],vy[2])
+    s1=distance2(x_p2[0],x_p[0],y_p2[0],y_p[0])
+    s2=distance2(x_p2[1],x_p[1],y_p2[1],y_p[1])
+    s3=distance2(x_p2[2],x_p[2],y_p2[2],y_p[2])
     separations.append(max(s1,s2,s3))
+    energy.append(result)
     traj_x1.append(x_p[0])
     traj_y1.append(y_p[0])
     traj_x2.append(x_p[1])
     traj_y2.append(y_p[1])
     traj_x3.append(x_p[2])
     traj_y3.append(y_p[2])
-    body_1.set_data([x_p[0]], [y_p[0]])
-    body_2.set_data([x_p[1]], [y_p[1]])
-    body_3.set_data([x_p[2]], [y_p[2]])
-    body_4.set_data([x_p2[0]], [y_p2[0]])
-    body_5.set_data([x_p2[1]], [y_p2[1]])
-    body_6.set_data([x_p2[2]], [y_p2[2]])
-    return body_1, body_2, body_3, body_4, body_5, body_6
-separations=[]
-ani=FuncAnimation(fig,update,frames=steps,interval=1,blit=True)
-plt.show()
-print(len(separations))
-print(separations[:5])
+    traj_x4.append(x_p2[0])
+    traj_y4.append(y_p2[0])
+    traj_x5.append(x_p2[1])
+    traj_y5.append(y_p2[1])
+    traj_x6.append(x_p2[2])
+    traj_y6.append(y_p2[2])
+log_sep=np.log(separations)
+window = np.ones(1000)/1000
+smoothed=np.convolve(log_sep,window,mode='same')
+grad=np.gradient(smoothed)
+grad2=np.gradient(grad)
+threshold=0.001
+linear_indices=np.where(np.abs(grad2) < threshold)
+longest_region=max(np.split(linear_indices[0],np.where(np.diff(linear_indices[0]) > 1)[0] + 1),key=len)
+coeffs=np.polyfit(longest_region*dt,np.log(separations)[longest_region],1)
+print("Lyapunov exponent:", coeffs[0], "per simulation time unit")
 plt.plot(np.log(separations))
+plt.show()
+plt.plot(energy)
+plt.show()
+def update(frame):
+    body_1.set_data([traj_x1[frame]], [traj_y1[frame]])
+    body_2.set_data([traj_x2[frame]], [traj_y2[frame]])
+    body_3.set_data([traj_x3[frame]], [traj_y3[frame]])
+    body_4.set_data([traj_x4[frame]], [traj_y4[frame]])
+    body_5.set_data([traj_x5[frame]], [traj_y5[frame]])
+    body_6.set_data([traj_x6[frame]], [traj_y6[frame]])
+    return body_1, body_2, body_3, body_4, body_5, body_6
+plt.close()
+fig, ax = plt.subplots()
+ax.set_xlim(-10, 10)
+ax.set_ylim(-10, 10)
+body_1,=ax.plot([],[],'ro')
+body_2,=ax.plot([],[],'go')
+body_3,=ax.plot([],[],'bo')
+body_4,=ax.plot([],[],'r^')
+body_5,=ax.plot([],[],'g^')
+body_6,=ax.plot([],[],'b^')
+ani=FuncAnimation(fig,update,frames=steps,interval=1,blit=True)
 plt.show()
 
 
